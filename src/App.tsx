@@ -1,13 +1,35 @@
-// Temporary token sanity-check page. Replaced by AppShell + router in Task 14.
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
+import { AppShell } from "@/components/layout/AppShell";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import HomePage from "@/routes/HomePage";
+import MeetingsListPage from "@/routes/MeetingsListPage";
+import MeetingDetailPage from "@/routes/MeetingDetailPage";
+import ProjectsKanbanPage from "@/routes/ProjectsKanbanPage";
+import ProjectDetailPage from "@/routes/ProjectDetailPage";
+import SearchPage from "@/routes/SearchPage";
+import SettingsPage from "@/routes/SettingsPage";
+import NotFoundPage from "@/routes/NotFoundPage";
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-page text-ink p-8">
-      <h1 className="text-2xl font-bold">Newtion</h1>
-      <p className="text-muted-ink">Tailwind tokens online.</p>
-      <div className="mt-4 rounded-card bg-card shadow-elevation p-6">
-        <span className="text-brand font-semibold">Brand teal</span> /{" "}
-        <span className="text-cta font-semibold">CTA orange</span>
-      </div>
-    </div>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route index element={<HomePage />} />
+            <Route path="meetings" element={<MeetingsListPage />} />
+            <Route path="meetings/:id" element={<MeetingDetailPage />} />
+            <Route path="projects" element={<ProjectsKanbanPage />}>
+              <Route path=":id" element={<ProjectDetailPage />} />
+            </Route>
+            <Route path="search" element={<SearchPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      <Toaster richColors position="top-right" />
+    </ThemeProvider>
   );
 }
