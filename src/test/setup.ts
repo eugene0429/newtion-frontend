@@ -35,6 +35,23 @@ if (typeof sessionStorage === "undefined" || typeof sessionStorage.clear !== "fu
   installStorageShim("sessionStorage");
 }
 
+// jsdom does not implement window.matchMedia; ThemeProvider needs it.
+if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: (query: string): MediaQueryList => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
+}
+
 afterEach(() => {
   cleanup();
 });
