@@ -6,6 +6,8 @@
 
 **Architecture:** 모든 비즈니스 로직은 `src/api` 어댑터 레이어 뒤에 두어 백엔드 인터페이스 변경에 격리된다. 서버 데이터는 TanStack Query, UI 토글은 Zustand, 라우트 상태는 React Router로 분담한다. 개발 환경에서는 MSW가 모든 HTTP 요청을 가로채고, 같은 mock이 통합 테스트(Vitest)에도 사용된다. BlockNote ↔ Backend Block 변환은 라운드트립 테스트로 보호되는 순수 함수 어댑터로 분리한다.
 
+**색상 토큰 규칙(CSS 변수 기반):** 모든 색상 토큰은 `src/index.css`의 `:root`/`.dark` 블록에 HSL 채널(예: `174 84% 32%`)로 정의되고, `tailwind.config.ts`는 `hsl(var(--token) / <alpha-value>)` 형태로 매핑한다. 결과적으로 컴포넌트는 `bg-brand`/`text-ink`/`border-line` 한 번만 작성하고, 다크모드는 `<html class="dark">` 토글 시 변수가 자동 교체되며 처리된다. `dark:bg-brand-dark` 같은 페어링은 사용하지 않는다 (shadcn 스타일과 동일). 새 토큰 추가 시 `:root`(라이트)와 `.dark`(다크가 라이트와 다를 경우)에 모두 정의하고, Tailwind config에 `hsl(var(--name) / <alpha-value>)` 매핑을 추가한다.
+
 **Tech Stack:** Vite 5, React 18, TypeScript 5, Tailwind CSS 3, shadcn/ui, Zustand, TanStack Query v5, React Router v6, Axios, MSW v2, Vitest + React Testing Library, Sonner, Lucide.
 
 **Plan 1 산출물:** `npm run dev`가 빈 라우트와 사이드바를 표시하고, 첫 부팅 시 `POST /workspaces`(MSW)로 워크스페이스가 자동 생성되어 localStorage에 저장됨. 다크모드 토글이 작동. `npm test`가 블록 어댑터 라운드트립 + 부트스트랩 통합 테스트를 통과.
@@ -279,7 +281,9 @@ npx tailwindcss init -p
 rm tailwind.config.js
 ```
 
-- [ ] **Step 2: `tailwind.config.ts` 작성 (디자인 토큰 매핑)**
+- [ ] **Step 2: `tailwind.config.ts` 작성 (CSS 변수 기반 토큰 매핑)**
+
+각 색상 토큰은 단일 키로, `hsl(var(--token) / <alpha-value>)` 문자열을 값으로 가진다. `<alpha-value>` 플레이스홀더 덕분에 `bg-brand/10` 같은 opacity 유틸리티가 자동으로 작동한다. `safelist: ["dark"]`는 Tailwind purge가 `.dark { ... }` 블록(아직 `dark:` 유틸리티가 없는 상태)을 떨궈내는 것을 방지하기 위해 필요하다.
 
 ```ts
 import type { Config } from "tailwindcss";
@@ -287,24 +291,30 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  safelist: ["dark"],
   theme: {
     extend: {
       colors: {
-        brand: { DEFAULT: "#0D9488", dark: "#14B8A6" },
-        cta: { DEFAULT: "#F97316", dark: "#FB923C" },
-        page: { DEFAULT: "#F5F5F7", dark: "#0A0A0A" },
-        card: { DEFAULT: "#FFFFFF", dark: "#171717" },
-        ink: { DEFAULT: "#0F172A", dark: "#F1F5F9" },
-        muted: { DEFAULT: "#475569", dark: "#94A3B8" },
-        line: { DEFAULT: "#E2E8F0", dark: "#262626" },
+        brand: "hsl(var(--brand) / <alpha-value>)",
+        cta: "hsl(var(--cta) / <alpha-value>)",
+        page: "hsl(var(--page) / <alpha-value>)",
+        card: "hsl(var(--card) / <alpha-value>)",
+        ink: "hsl(var(--ink) / <alpha-value>)",
+        "muted-ink": "hsl(var(--muted-ink) / <alpha-value>)",
+        line: "hsl(var(--line) / <alpha-value>)",
         status: {
-          plannedFg: "#64748B", plannedBg: "#F1F5F9",
-          progressFg: "#F59E0B", progressBg: "#FEF3C7",
-          doneFg: "#10B981", doneBg: "#D1FAE5",
+          plannedFg: "hsl(var(--status-planned-fg) / <alpha-value>)",
+          plannedBg: "hsl(var(--status-planned-bg) / <alpha-value>)",
+          progressFg: "hsl(var(--status-progress-fg) / <alpha-value>)",
+          progressBg: "hsl(var(--status-progress-bg) / <alpha-value>)",
+          doneFg: "hsl(var(--status-done-fg) / <alpha-value>)",
+          doneBg: "hsl(var(--status-done-bg) / <alpha-value>)",
         },
         accent: {
-          pink: "#EC4899", violet: "#8B5CF6",
-          sky: "#0EA5E9", rose: "#F43F5E",
+          pink: "hsl(var(--accent-pink) / <alpha-value>)",
+          violet: "hsl(var(--accent-violet) / <alpha-value>)",
+          sky: "hsl(var(--accent-sky) / <alpha-value>)",
+          rose: "hsl(var(--accent-rose) / <alpha-value>)",
         },
       },
       borderRadius: { card: "20px" },
@@ -325,16 +335,49 @@ const config: Config = {
 export default config;
 ```
 
-- [ ] **Step 3: `src/index.css` 작성 (Tailwind + 폰트 + 베이스 레이어)**
+> 참고: 기존 `muted` 토큰은 `muted-ink`로 이름을 바꿨다. shadcn(Task 4)이 주입하는 `--muted`는 *background* 토큰이라 충돌하기 때문이다. 컴포넌트는 `text-muted` 대신 `text-muted-ink`를 사용한다.
+
+- [ ] **Step 3: `src/index.css` 작성 (Tailwind + CSS 변수 토큰 + 베이스 레이어)**
+
+`:root`(라이트)와 `.dark`(다크) 블록에 HSL 채널을 정의한다. `hsl(...)` 래퍼는 사용하지 않고 `H S% L%` 포맷으로만 둔다 (Tailwind config에서 `hsl(var(--token) / <alpha-value>)`로 감싸므로). 다크에서는 라이트와 *값이 다른* 토큰만 재선언한다 (status/accent는 다크에서도 동일).
 
 ```css
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --brand: 174 84% 32%;          /* #0D9488 */
+    --cta: 21 90% 53%;             /* #F97316 */
+    --page: 240 14% 96%;           /* #F5F5F7 */
+    --card: 0 0% 100%;             /* #FFFFFF */
+    --ink: 222 47% 11%;            /* #0F172A */
+    --muted-ink: 215 19% 35%;      /* #475569 — renamed from "muted" to avoid shadcn collision */
+    --line: 213 27% 91%;           /* #E2E8F0 */
+    --status-planned-fg: 215 19% 47%;
+    --status-planned-bg: 210 40% 96%;
+    --status-progress-fg: 38 92% 50%;
+    --status-progress-bg: 48 96% 89%;
+    --status-done-fg: 160 84% 39%;
+    --status-done-bg: 149 80% 90%;
+    --accent-pink: 330 81% 60%;
+    --accent-violet: 258 90% 66%;
+    --accent-sky: 199 89% 48%;
+    --accent-rose: 350 89% 60%;
+  }
+
+  .dark {
+    --brand: 173 80% 40%;          /* #14B8A6 */
+    --cta: 21 95% 61%;             /* #FB923C */
+    --page: 0 0% 4%;               /* #0A0A0A */
+    --card: 0 0% 9%;               /* #171717 */
+    --ink: 210 40% 96%;            /* #F1F5F9 */
+    --muted-ink: 215 20% 65%;      /* #94A3B8 */
+    --line: 0 0% 15%;              /* #262626 */
+    /* status + accent tokens unchanged in dark */
+  }
+
   html {
     font-family: theme("fontFamily.sans");
     color-scheme: light;
@@ -345,14 +388,8 @@ export default config;
   body {
     @apply bg-page text-ink antialiased;
   }
-  html.dark body {
-    @apply bg-page-dark text-ink-dark;
-  }
   *:focus-visible {
     @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-page;
-  }
-  html.dark *:focus-visible {
-    @apply ring-offset-page-dark;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -364,14 +401,31 @@ export default config;
 }
 ```
 
+> 참고: Google Fonts는 `@import` 대신 `index.html`의 `<link rel="stylesheet">`로 로드한다 (다음 단계). `<link>`가 LCP에 더 유리하다 — `@import`는 CSS 파싱이 끝나야 폰트 요청을 시작하지만 `<link>`는 HTML 파싱 중에 병렬로 시작된다.
+
+- [ ] **Step 3.5: `index.html`에 Google Fonts `<link>` 추가**
+
+`<head>`의 `<meta viewport>` 다음에 세 줄을 추가한다. `preconnect` 두 개로 DNS+TLS를 미리 따고, `display=swap`으로 폰트가 늦게 와도 텍스트가 즉시 보이게 한다.
+
+```html
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+```
+
+LCP 관점에서 `<link>`가 `@import`보다 권장된다: `@import`는 CSS 다운로드+파싱이 끝나야 폰트 요청이 시작되지만 `<link>`는 HTML 파싱 중에 즉시 병렬 fetch된다.
+
 - [ ] **Step 4: `App.tsx`에서 토큰 적용 확인용 마크업으로 임시 교체**
 
+다크모드 페어링(`dark:X-dark`)이 사라졌다 — CSS 변수가 자동으로 라이트/다크를 전환한다. `text-muted` → `text-muted-ink` 이름 변경에도 유의.
+
 ```tsx
+// Temporary token sanity-check page. Replaced by AppShell + router in Task 14.
 export default function App() {
   return (
     <div className="min-h-screen bg-page text-ink p-8">
       <h1 className="text-2xl font-bold">Newtion</h1>
-      <p className="text-muted">Tailwind tokens online.</p>
+      <p className="text-muted-ink">Tailwind tokens online.</p>
       <div className="mt-4 rounded-card bg-card shadow-card p-6">
         <span className="text-brand font-semibold">Brand teal</span> /{" "}
         <span className="text-cta font-semibold">CTA orange</span>
@@ -564,25 +618,46 @@ npx shadcn@latest add button card dialog input skeleton sonner scroll-area separ
 
 `src/components/ui/`에 컴포넌트들이 생성된다.
 
-- [ ] **Step 4: shadcn이 `index.css`에 추가한 CSS 변수 블록을 디자인 토큰과 정합**
+- [ ] **Step 4: shadcn이 `index.css`에 추가한 CSS 변수 블록을 우리 토큰과 병합**
 
-shadcn init은 `:root`/`.dark` 선택자에 HSL 변수(`--background`, `--foreground`, `--primary` 등)를 주입한다. 우리 토큰과 충돌하지 않으므로 그대로 두되, `--primary`가 슬레이트 기본값이므로 다음 라인을 `:root`/`.dark` 블록의 끝에 각각 덮어쓰기로 추가한다.
+⚠️ **주의:** Task 2에서 이미 `:root`/`.dark` 블록을 만들고 우리 프로젝트 토큰(`--brand`, `--cta`, `--page`, `--card`, `--ink`, `--muted-ink`, `--line`, status/accent)을 정의했다. shadcn init은 같은 셀렉터에 슬레이트 기반 HSL 변수(`--background`, `--foreground`, `--primary`, `--secondary`, `--muted`, `--accent`, `--destructive`, `--border`, `--input`, `--ring`, `--radius` 등)를 주입한다. shadcn init이 **우리 토큰 라인을 지우지 않도록 주의** — init 후 diff를 확인하고, 우리 토큰 라인과 shadcn 변수가 둘 다 `:root`/`.dark` 블록 안에 공존하도록 수동 병합한다.
 
-`src/index.css`의 `:root { ... }` 블록 끝에 추가:
-
+병합 결과 예시(`:root`):
 ```css
-    --primary: 174 84% 32%;          /* teal #0D9488 */
-    --primary-foreground: 0 0% 100%;
-    --ring: 174 84% 32%;
+:root {
+  /* 우리 프로젝트 토큰 (Task 2에서 정의) */
+  --brand: 174 84% 32%;
+  --cta: 21 90% 53%;
+  --page: 240 14% 96%;
+  --card: 0 0% 100%;
+  --ink: 222 47% 11%;
+  --muted-ink: 215 19% 35%;
+  --line: 213 27% 91%;
+  /* ... status/accent ... */
+
+  /* shadcn 슬레이트 기반 변수 (이번 단계에서 추가) */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --primary: 174 84% 32%;          /* shadcn primary를 우리 brand teal과 동일 값으로 매핑 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;          /* shadcn의 --muted는 background 토큰; 우리 --muted-ink와 다름 */
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 174 84% 32%;             /* shadcn ring을 brand로 매핑 */
+  --radius: 0.5rem;
+}
 ```
 
-`src/index.css`의 `.dark { ... }` 블록 끝에 추가:
+`.dark` 블록도 동일하게: 우리 다크 토큰 라인(Task 2)을 보존하고 shadcn 다크 변수를 그 옆에 추가하되, `--primary` / `--ring`은 `173 80% 40%` (브랜드 다크) 값으로 설정한다.
 
-```css
-    --primary: 173 80% 40%;          /* teal #14B8A6 */
-    --primary-foreground: 0 0% 100%;
-    --ring: 173 80% 40%;
-```
+> 운영 원칙: **shadcn 컴포넌트는 `--primary`를 읽고, 우리 컴포넌트는 `--brand`를 읽는다.** 두 변수의 *값*을 같게 유지하면 시각적 일관성이 보장되고, 향후 둘 중 하나만 바꿔야 할 때(예: shadcn primary는 그대로 두고 brand만 새 색으로) 분리 가능성도 남는다. `--muted`는 shadcn의 background 토큰이고 우리 `--muted-ink`는 텍스트 토큰이므로 이름이 비슷해 보여도 별개임을 기억한다.
 
 - [ ] **Step 5: Sonner Toaster를 App에 마운트할 자리 확인 (실제 마운트는 Task 12에서)**
 
@@ -2346,18 +2421,17 @@ export function Sidebar() {
     <aside
       className={cn(
         "h-screen sticky top-0 flex flex-col border-r border-line bg-card transition-[width] duration-200",
-        "dark:border-line-dark dark:bg-card-dark",
         collapsed ? "w-16" : "w-60",
       )}
     >
-      <div className="flex items-center justify-between px-4 h-14 border-b border-line dark:border-line-dark">
+      <div className="flex items-center justify-between px-4 h-14 border-b border-line">
         {!collapsed && (
           <span className="font-bold text-brand">Newtion</span>
         )}
         <button
           type="button"
           onClick={() => openPalette(true)}
-          className="text-xs text-muted hover:text-ink dark:text-muted-dark dark:hover:text-ink-dark"
+          className="text-xs text-muted-ink hover:text-ink"
           aria-label="검색 열기"
         >
           <Search className="w-4 h-4" />
@@ -2375,7 +2449,7 @@ export function Sidebar() {
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm",
                 isActive
                   ? "bg-brand/10 text-brand"
-                  : "text-ink hover:bg-page dark:text-ink-dark dark:hover:bg-page-dark",
+                  : "text-ink hover:bg-page",
               )
             }
           >
@@ -2385,10 +2459,10 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-line dark:border-line-dark p-2">
+      <div className="border-t border-line p-2">
         <NavLink
           to="/settings"
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-ink hover:bg-page dark:text-ink-dark dark:hover:bg-page-dark"
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm text-ink hover:bg-page"
         >
           <Settings className="w-4 h-4 shrink-0" />
           {!collapsed && <span>설정</span>}
@@ -2396,7 +2470,7 @@ export function Sidebar() {
         <button
           type="button"
           onClick={toggle}
-          className="w-full text-left text-xs text-muted px-3 py-2 hover:text-ink dark:text-muted-dark dark:hover:text-ink-dark"
+          className="w-full text-left text-xs text-muted-ink px-3 py-2 hover:text-ink"
         >
           {collapsed ? "▶" : "◀ 접기"}
         </button>
@@ -2406,7 +2480,7 @@ export function Sidebar() {
 }
 ```
 
-> 참고: `dark:border-line-dark` 등은 토큰 별도 키이므로, `tailwind.config.ts`의 colors가 `line: { DEFAULT, dark }` 구조로 동작한다. Tailwind는 `border-line` / `border-line-dark` 클래스를 모두 만들어준다.
+> 참고: 컬러 토큰은 CSS 변수 기반이므로 `border-line` 한 번만 작성하면 라이트/다크 모두 자동 처리된다. `dark:border-line-dark` 같은 페어링은 사용하지 않는다.
 
 - [ ] **Step 3: `src/components/layout/TopBar.tsx` 작성**
 
@@ -2424,15 +2498,15 @@ export function TopBar() {
   const Icon = ICONS[mode];
 
   return (
-    <header className="h-14 flex items-center justify-between px-6 border-b border-line dark:border-line-dark bg-card dark:bg-card-dark">
-      <div className="text-sm font-medium text-ink dark:text-ink-dark">
+    <header className="h-14 flex items-center justify-between px-6 border-b border-line bg-card">
+      <div className="text-sm font-medium text-ink">
         {workspace?.name ?? "Newtion"}
       </div>
       <button
         type="button"
         onClick={cycle}
         aria-label={`테마: ${mode}`}
-        className="p-2 rounded-md hover:bg-page dark:hover:bg-page-dark"
+        className="p-2 rounded-md hover:bg-page"
       >
         <Icon className="w-4 h-4" />
       </button>
@@ -2450,7 +2524,7 @@ import { TopBar } from "./TopBar";
 
 export function AppShell() {
   return (
-    <div className="flex min-h-screen bg-page text-ink dark:bg-page-dark dark:text-ink-dark">
+    <div className="flex min-h-screen bg-page text-ink">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <TopBar />
@@ -2508,7 +2582,7 @@ export default function ProjectsKanbanPage() {
 import { useParams } from "react-router-dom";
 export default function ProjectDetailPage() {
   const { id } = useParams();
-  return <p className="mt-4 text-muted">프로젝트 모달 placeholder: {id}</p>;
+  return <p className="mt-4 text-muted-ink">프로젝트 모달 placeholder: {id}</p>;
 }
 ```
 

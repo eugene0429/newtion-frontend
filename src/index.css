@@ -1,10 +1,39 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --brand: 174 84% 32%;          /* #0D9488 */
+    --cta: 21 90% 53%;             /* #F97316 */
+    --page: 240 14% 96%;           /* #F5F5F7 */
+    --card: 0 0% 100%;             /* #FFFFFF */
+    --ink: 222 47% 11%;            /* #0F172A */
+    --muted-ink: 215 19% 35%;      /* #475569 — renamed from "muted" to avoid shadcn collision */
+    --line: 213 27% 91%;           /* #E2E8F0 */
+    --status-planned-fg: 215 19% 47%;
+    --status-planned-bg: 210 40% 96%;
+    --status-progress-fg: 38 92% 50%;
+    --status-progress-bg: 48 96% 89%;
+    --status-done-fg: 160 84% 39%;
+    --status-done-bg: 149 80% 90%;
+    --accent-pink: 330 81% 60%;
+    --accent-violet: 258 90% 66%;
+    --accent-sky: 199 89% 48%;
+    --accent-rose: 350 89% 60%;
+  }
+
+  .dark {
+    --brand: 173 80% 40%;          /* #14B8A6 */
+    --cta: 21 95% 61%;             /* #FB923C */
+    --page: 0 0% 4%;               /* #0A0A0A */
+    --card: 0 0% 9%;               /* #171717 */
+    --ink: 210 40% 96%;            /* #F1F5F9 */
+    --muted-ink: 215 20% 65%;      /* #94A3B8 */
+    --line: 0 0% 15%;              /* #262626 */
+    /* status + accent tokens unchanged in dark */
+  }
+
   html {
     font-family: theme("fontFamily.sans");
     color-scheme: light;
@@ -15,14 +44,8 @@
   body {
     @apply bg-page text-ink antialiased;
   }
-  html.dark body {
-    @apply bg-page-dark text-ink-dark;
-  }
   *:focus-visible {
     @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-page;
-  }
-  html.dark *:focus-visible {
-    @apply ring-offset-page-dark;
   }
 
   @media (prefers-reduced-motion: reduce) {
