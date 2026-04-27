@@ -5,24 +5,16 @@ import {
   OctagonX,
   TriangleAlert,
 } from "lucide-react"
-import { useTheme } from "next-themes"
-import { Toaster as Sonner } from "sonner"
+import { Toaster as Sonner, type ToasterProps } from "sonner"
 
-// TODO(Task 10): Replace next-themes useTheme() with our Zustand themeStore.
-// Current state: useTheme() outside next-themes provider returns theme: undefined,
-// which Sonner falls back to "system". This works passively but Sonner won't
-// re-render when the user toggles theme via Zustand. Once src/store/themeStore.ts
-// exists (Task 10), import useThemeStore and pass theme={mode}, then remove
-// next-themes from package.json.
+import { useThemeStore } from "@/store/themeStore"
 
-type ToasterProps = React.ComponentProps<typeof Sonner>
-
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+const Toaster = (props: ToasterProps) => {
+  const mode = useThemeStore((s) => s.mode)
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={mode as ToasterProps["theme"]}
       className="toaster group"
       icons={{
         success: <CircleCheck className="h-4 w-4" />,
