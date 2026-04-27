@@ -144,6 +144,8 @@ npm install -D tailwindcss@^3 postcss autoprefixer \
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "outDir": "./dist-tsc/app",
+    "tsBuildInfoFile": "./dist-tsc/app/tsconfig.tsbuildinfo",
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
@@ -156,7 +158,7 @@ npm install -D tailwindcss@^3 postcss autoprefixer \
     "paths": { "@/*": ["src/*"] },
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src", "vite.config.ts", "vitest.config.ts"],
+  "include": ["src", "vite.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
 ```
@@ -171,9 +173,11 @@ npm install -D tailwindcss@^3 postcss autoprefixer \
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
-    "strict": true
+    "strict": true,
+    "outDir": "./dist-tsc/node",
+    "tsBuildInfoFile": "./dist-tsc/node/tsconfig.tsbuildinfo"
   },
-  "include": ["vite.config.ts", "vitest.config.ts"]
+  "include": ["vite.config.ts"]
 }
 ```
 
@@ -213,6 +217,7 @@ VITE_USE_MOCK=true
 node_modules
 dist
 dist-ssr
+dist-tsc
 .env
 .env.local
 *.local
@@ -220,6 +225,7 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 coverage
+*.tsbuildinfo
 ```
 
 - [ ] **Step 8: `src/App.tsx`를 임시 placeholder로 단순화**
@@ -396,6 +402,7 @@ git commit -m "feat: configure Tailwind with design tokens and dark mode"
 
 **Files:**
 - Create: `vitest.config.ts`, `src/test/setup.ts`, `src/lib/cn.ts`, `src/lib/cn.test.ts`
+- Modify: `tsconfig.json`, `tsconfig.node.json` (add `vitest.config.ts` to `include`)
 
 - [ ] **Step 1: `vitest.config.ts` 작성**
 
@@ -417,6 +424,26 @@ export default defineConfig({
   },
 });
 ```
+
+- [ ] **Step 1b: `tsconfig.json` / `tsconfig.node.json`의 `include`에 `vitest.config.ts` 추가**
+
+`vitest.config.ts` 파일이 이제 실제로 존재하므로, 두 tsconfig의 `include` 배열에 추가하여 타입체크 대상이 되도록 한다 (Task 1 시점에는 forward reference가 되어 제외했었다).
+
+`tsconfig.json`:
+```json
+"include": ["src", "vite.config.ts", "vitest.config.ts"]
+```
+
+`tsconfig.node.json`:
+```json
+"include": ["vite.config.ts", "vitest.config.ts"]
+```
+
+확인:
+```bash
+npm run build
+```
+Expected: build 성공 (vitest.config.ts가 타입체크에 포함됨).
 
 - [ ] **Step 2: `src/test/setup.ts` 작성**
 

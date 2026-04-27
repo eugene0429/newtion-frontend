@@ -9,7 +9,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "tsBuildInfoFile": "node_modules/.tmp/tsc-app.tsbuildinfo",
+    "outDir": "./dist-tsc/app",
+    "tsBuildInfoFile": "./dist-tsc/app/tsconfig.tsbuildinfo",
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
@@ -22,6 +23,6 @@
     "paths": { "@/*": ["src/*"] },
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src", "vite.config.ts", "vitest.config.ts"],
+  "include": ["src", "vite.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
