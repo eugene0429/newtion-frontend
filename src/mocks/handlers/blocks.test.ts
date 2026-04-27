@@ -15,7 +15,7 @@ describe("blocks handler — client-supplied _id", () => {
       type: "paragraph",
       content: { props: {}, inline: [] },
       order: 0,
-    } as Parameters<typeof createBlock>[0] & { _id: string });
+    });
     expect(created._id).toBe("client-block-1");
     expect(db.blocks.find((b) => b._id === "client-block-1")).toBeDefined();
   });
@@ -24,7 +24,7 @@ describe("blocks handler — client-supplied _id", () => {
     const created = await createBlocksBatch([
       { _id: "a", pageId: "pg_x", type: "paragraph", content: {}, order: 0 },
       { _id: "b", pageId: "pg_x", type: "paragraph", content: {}, order: 1 },
-    ] as unknown as Parameters<typeof createBlocksBatch>[0]);
+    ]);
     expect(created.map((b) => b._id)).toEqual(["a", "b"]);
   });
 
