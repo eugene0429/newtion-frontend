@@ -160,10 +160,12 @@ npm install -D tailwindcss@^3 postcss autoprefixer \
     "paths": { "@/*": ["src/*"] },
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src", "vite.config.ts"],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
 ```
+
+> Vite/Vitest configs go in `tsconfig.node.json` only — they run in Node context.
 
 - [ ] **Step 4: `tsconfig.node.json` 작성 (Vite/Vitest 설정용)**
 
@@ -455,7 +457,7 @@ git commit -m "feat: configure Tailwind with design tokens and dark mode"
 
 **Files:**
 - Create: `vitest.config.ts`, `src/test/setup.ts`, `src/lib/cn.ts`, `src/lib/cn.test.ts`
-- Modify: `tsconfig.json`, `tsconfig.node.json` (add `vitest.config.ts` to `include`)
+- Modify: `tsconfig.node.json` (add `vitest.config.ts` to `include`)
 
 - [ ] **Step 1: `vitest.config.ts` 작성**
 
@@ -478,14 +480,9 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 1b: `tsconfig.json` / `tsconfig.node.json`의 `include`에 `vitest.config.ts` 추가**
+- [ ] **Step 1b: `tsconfig.node.json`의 `include`에 `vitest.config.ts` 추가**
 
-`vitest.config.ts` 파일이 이제 실제로 존재하므로, 두 tsconfig의 `include` 배열에 추가하여 타입체크 대상이 되도록 한다 (Task 1 시점에는 forward reference가 되어 제외했었다).
-
-`tsconfig.json`:
-```json
-"include": ["src", "vite.config.ts", "vitest.config.ts"]
-```
+`vitest.config.ts` 파일이 이제 실제로 존재하므로, `tsconfig.node.json`의 `include` 배열에 추가하여 타입체크 대상이 되도록 한다 (Task 1 시점에는 forward reference가 되어 제외했었다). `tsconfig.json` (앱 프로젝트)에는 추가하지 않는다 — Vite/Vitest 설정은 Node 컨텍스트에서 실행되므로 `tsconfig.node.json`에만 속한다.
 
 `tsconfig.node.json`:
 ```json
@@ -529,7 +526,6 @@ afterEach(() => {
 - [ ] **Step 4: 실패 테스트 작성 — `src/lib/cn.test.ts`**
 
 ```ts
-import { describe, expect, it } from "vitest";
 import { cn } from "./cn";
 
 describe("cn", () => {
@@ -540,6 +536,8 @@ describe("cn", () => {
   });
 });
 ```
+
+> globals are configured (`globals: true` + `types: ["vitest/globals"]`), so test files don't need to import `describe`/`it`/`expect`.
 
 - [ ] **Step 5: 테스트 실패 확인**
 
