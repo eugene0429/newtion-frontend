@@ -1,5 +1,6 @@
 import { db, newId, nowIso, resetDb } from "./store";
 import type { Page } from "@/types/page";
+import type { Block } from "@/types/block";
 
 interface SeedOptions {
   /** 부트스트랩이 워크스페이스를 자동 생성하도록 비워둘지 */
@@ -57,27 +58,93 @@ export function seed(options: SeedOptions = {}): void {
   });
 
   for (let i = 0; i < 5; i += 1) {
-    const id = newId("pg_meeting");
+    const meetingId = newId("pg_meeting");
+    const dateStr = `2026-04-${String(20 + i).padStart(2, "0")}`;
     const mentioned = i < 2 ? [projectIds[3 + i]] : [];
     db.pages.push({
-      _id: id,
+      _id: meetingId,
       workspaceId: wsId,
       parentPageId: meetingsRoot,
-      title: `2026-04-${String(20 + i).padStart(2, "0")} 위클리`,
+      title: `${dateStr} 위클리`,
       emoji: "📝",
       order: i,
       isArchived: false,
       isPublished: false,
       properties: {
         type: "meeting",
-        date: `2026-04-${String(20 + i).padStart(2, "0")}`,
+        date: dateStr,
         mentionedPageIds: mentioned,
       },
       createdAt: nowIso(),
       updatedAt: nowIso(),
       removedAt: null,
     });
+    seedMeetingBlocks(meetingId, dateStr);
   }
+}
+
+function seedMeetingBlocks(pageId: string, dateStr: string): void {
+  const items: Block[] = [
+    {
+      _id: newId("bl"),
+      pageId,
+      parentBlockId: null,
+      type: "heading_2",
+      content: {
+        props: { level: 2 },
+        inline: [{ type: "text", text: "안건", styles: {} }],
+      },
+      order: 0,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      removedAt: null,
+    },
+    {
+      _id: newId("bl"),
+      pageId,
+      parentBlockId: null,
+      type: "paragraph",
+      content: {
+        props: {},
+        inline: [
+          { type: "text", text: `${dateStr} 위클리 회의 노트입니다.`, styles: {} },
+        ],
+      },
+      order: 1,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      removedAt: null,
+    },
+    {
+      _id: newId("bl"),
+      pageId,
+      parentBlockId: null,
+      type: "bulleted_list_item",
+      content: {
+        props: {},
+        inline: [{ type: "text", text: "지난주 진행 정리", styles: {} }],
+      },
+      order: 2,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      removedAt: null,
+    },
+    {
+      _id: newId("bl"),
+      pageId,
+      parentBlockId: null,
+      type: "bulleted_list_item",
+      content: {
+        props: {},
+        inline: [{ type: "text", text: "이번주 우선순위", styles: {} }],
+      },
+      order: 3,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      removedAt: null,
+    },
+  ];
+  db.blocks.push(...items);
 }
 
 function makeRoot(
