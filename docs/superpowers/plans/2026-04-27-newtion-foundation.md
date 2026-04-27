@@ -311,7 +311,7 @@ const config: Config = {
           doneFg: "hsl(var(--status-done-fg) / <alpha-value>)",
           doneBg: "hsl(var(--status-done-bg) / <alpha-value>)",
         },
-        accent: {
+        tag: {
           pink: "hsl(var(--accent-pink) / <alpha-value>)",
           violet: "hsl(var(--accent-violet) / <alpha-value>)",
           sky: "hsl(var(--accent-sky) / <alpha-value>)",
@@ -320,8 +320,8 @@ const config: Config = {
       },
       borderRadius: { card: "20px" },
       boxShadow: {
-        card: "0 1px 3px rgba(0,0,0,0.05)",
-        hover: "0 4px 12px rgba(0,0,0,0.08)",
+        elevation: "0 1px 3px rgba(0,0,0,0.05)",
+        "elevation-hover": "0 4px 12px rgba(0,0,0,0.08)",
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
@@ -427,7 +427,7 @@ export default function App() {
     <div className="min-h-screen bg-page text-ink p-8">
       <h1 className="text-2xl font-bold">Newtion</h1>
       <p className="text-muted-ink">Tailwind tokens online.</p>
-      <div className="mt-4 rounded-card bg-card shadow-card p-6">
+      <div className="mt-4 rounded-card bg-card shadow-elevation p-6">
         <span className="text-brand font-semibold">Brand teal</span> /{" "}
         <span className="text-cta font-semibold">CTA orange</span>
       </div>
@@ -576,6 +576,15 @@ git commit -m "test: configure Vitest + RTL with cn() smoke test"
 ---
 
 ## Task 4: shadcn/ui 초기화 + 핵심 컴포넌트 추가
+
+> **shadcn ≥ 4.5.0 동작 차이 (실제 검증됨):** `init`은 Vite 친화 기본값 대신 Next 템플릿으로 진행하려 한다. `add`는 `src/index.css` / `tailwind.config.ts`를 **자동 머지하지 않는다**. 따라서 다음 절차를 따르라:
+>
+> 1. **Step 1을 건너뛰고** `components.json`을 직접 작성한다 (Step 1 코드 블록 참조).
+> 2. **Step 3** (`add`)부터 진행한다.
+> 3. `tailwindcss-animate`를 devDep으로 별도 설치하고 `tailwind.config.ts`에 ESM import + plugins에 등록한다 (`dialog`/`tooltip`/`dropdown-menu`의 `animate-in`/`fade-in-0`/`zoom-in-95`/`slide-in-from-*` 유틸리티에 필요).
+> 4. **Step 4의 토큰 머지는 전부 수동**으로 작성한다.
+> 5. **`accent`/`card` 네임스페이스 충돌 주의**: shadcn의 `card.tsx`는 `bg-card text-card-foreground`를, `Toaster`는 `--accent` 등을 쓴다. 우리 토큰 `card`(string)는 객체로 승격되며, 우리 4 accent는 `tag.*`로 분리된다 (Step 2.5 참조).
+> 6. **`boxShadow.card`는 `colors.card`(객체)와 클래스 이름 충돌**한다. `boxShadow.elevation` 명칭을 사용한다 (Task 2의 토큰 정의 참조).
 
 **Files:**
 - Create: `components.json` (shadcn init 생성), `src/components/ui/*` (button, card, dialog, input, skeleton, sonner, scroll-area, separator, tooltip, dropdown-menu)
@@ -1546,6 +1555,37 @@ Expected: 모든 테스트 PASS, 빌드 통과.
 ```bash
 git add -A
 git commit -m "feat(store): theme/sidebar/commandPalette/modal Zustand stores"
+```
+
+- [ ] **Step 10: Sonner를 themeStore에 연결 (Task 4 TODO 해소)**
+
+Task 4에서 sonner.tsx가 `next-themes`의 useTheme을 사용한 채 남겨두었다 (themeStore가 없었기 때문). 이제 `useThemeStore`가 존재하므로 다음 변경:
+
+`src/components/ui/sonner.tsx`:
+```tsx
+import { useThemeStore } from "@/store/themeStore";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
+// (TODO 주석 + next-themes import 제거)
+
+const Toaster = (props: ToasterProps) => {
+  const mode = useThemeStore((s) => s.mode);
+  return (
+    <Sonner
+      theme={mode as ToasterProps["theme"]}
+      className="toaster group"
+      toastOptions={{...}}  // 기존 유지
+      {...props}
+    />
+  );
+};
+```
+
+```bash
+npm uninstall next-themes
+npm test
+npm run build
+git add -A
+git commit -m "chore(ui): wire sonner toaster to themeStore, drop next-themes"
 ```
 
 ---

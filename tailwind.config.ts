@@ -22,12 +22,16 @@ const config: Config = {
           doneFg: "hsl(var(--status-done-fg) / <alpha-value>)",
           doneBg: "hsl(var(--status-done-bg) / <alpha-value>)",
         },
-        // shadcn additions merged with our accent (pink/violet/sky/rose)
-        accent: {
+        // Project tag colors (pink/violet/sky/rose) — separate namespace so
+        // `bg-accent` is unambiguously the shadcn neutral accent.
+        tag: {
           pink: "hsl(var(--accent-pink) / <alpha-value>)",
           violet: "hsl(var(--accent-violet) / <alpha-value>)",
           sky: "hsl(var(--accent-sky) / <alpha-value>)",
           rose: "hsl(var(--accent-rose) / <alpha-value>)",
+        },
+        // shadcn neutral accent (used by Toaster, hover/focus states, etc.)
+        accent: {
           DEFAULT: "hsl(var(--accent) / <alpha-value>)",
           foreground: "hsl(var(--accent-foreground) / <alpha-value>)",
         },
@@ -70,8 +74,8 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        card: "0 1px 3px rgba(0,0,0,0.05)",
-        hover: "0 4px 12px rgba(0,0,0,0.08)",
+        elevation: "0 1px 3px rgba(0,0,0,0.05)",
+        "elevation-hover": "0 4px 12px rgba(0,0,0,0.08)",
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],

@@ -8,6 +8,13 @@ import {
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
+// TODO(Task 10): Replace next-themes useTheme() with our Zustand themeStore.
+// Current state: useTheme() outside next-themes provider returns theme: undefined,
+// which Sonner falls back to "system". This works passively but Sonner won't
+// re-render when the user toggles theme via Zustand. Once src/store/themeStore.ts
+// exists (Task 10), import useThemeStore and pass theme={mode}, then remove
+// next-themes from package.json.
+
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
