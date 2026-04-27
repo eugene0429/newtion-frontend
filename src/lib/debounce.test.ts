@@ -2,8 +2,12 @@ import { vi } from "vitest";
 import { debounce } from "./debounce";
 
 describe("debounce", () => {
-  beforeEach(() => vi.useFakeTimers());
-  afterEach(() => vi.useRealTimers());
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it("delays calls until quiet period elapses", () => {
     const fn = vi.fn();
