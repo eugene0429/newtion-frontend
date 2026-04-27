@@ -283,7 +283,7 @@ rm tailwind.config.js
 
 - [ ] **Step 2: `tailwind.config.ts` 작성 (CSS 변수 기반 토큰 매핑)**
 
-각 색상 토큰은 단일 키로, `hsl(var(--token) / <alpha-value>)` 문자열을 값으로 가진다. `<alpha-value>` 플레이스홀더 덕분에 `bg-brand/10` 같은 opacity 유틸리티가 자동으로 작동한다. `safelist: ["dark"]`는 Tailwind purge가 `.dark { ... }` 블록(아직 `dark:` 유틸리티가 없는 상태)을 떨궈내는 것을 방지하기 위해 필요하다.
+각 색상 토큰은 단일 키로, `hsl(var(--token) / <alpha-value>)` 문자열을 값으로 가진다. `<alpha-value>` 플레이스홀더 덕분에 `bg-brand/10` 같은 opacity 유틸리티가 자동으로 작동한다. `safelist`는 필요하지 않다 — `:root`/`.dark` 블록을 `@layer base` 바깥(top-level)에 두면 Tailwind의 content purge에 영향을 받지 않고 그대로 살아남는다 (Step 3 참조, shadcn 공식 템플릿 구조와 동일).
 
 ```ts
 import type { Config } from "tailwindcss";
@@ -291,7 +291,6 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
-  safelist: ["dark"],
   theme: {
     extend: {
       colors: {
@@ -339,45 +338,45 @@ export default config;
 
 - [ ] **Step 3: `src/index.css` 작성 (Tailwind + CSS 변수 토큰 + 베이스 레이어)**
 
-`:root`(라이트)와 `.dark`(다크) 블록에 HSL 채널을 정의한다. `hsl(...)` 래퍼는 사용하지 않고 `H S% L%` 포맷으로만 둔다 (Tailwind config에서 `hsl(var(--token) / <alpha-value>)`로 감싸므로). 다크에서는 라이트와 *값이 다른* 토큰만 재선언한다 (status/accent는 다크에서도 동일).
+`:root`(라이트)와 `.dark`(다크) 블록에 HSL 채널을 정의한다. `hsl(...)` 래퍼는 사용하지 않고 `H S% L%` 포맷으로만 둔다 (Tailwind config에서 `hsl(var(--token) / <alpha-value>)`로 감싸므로). 다크에서는 라이트와 *값이 다른* 토큰만 재선언한다 (status/accent는 다크에서도 동일). `:root`/`.dark` 블록은 `@layer base` **바깥**(top-level)에 둔다 — 이 위치에서는 Tailwind의 content purge가 건드리지 않으므로 `safelist` 같은 우회 장치가 필요 없다 (shadcn 공식 템플릿 구조와 동일). 폰트/포커스/모션 같은 베이스 스타일만 `@layer base`로 감싼다.
 
 ```css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand: 174 84% 32%;          /* #0D9488 */
+  --cta: 25 95% 53%;             /* #F97316 */
+  --page: 240 14% 96%;           /* #F5F5F7 */
+  --card: 0 0% 100%;             /* #FFFFFF */
+  --ink: 222 47% 11%;            /* #0F172A */
+  --muted-ink: 215 19% 35%;      /* #475569 — renamed from "muted" to avoid shadcn collision */
+  --line: 213 27% 91%;           /* #E2E8F0 */
+  --status-planned-fg: 215 19% 47%;
+  --status-planned-bg: 210 40% 96%;
+  --status-progress-fg: 38 92% 50%;
+  --status-progress-bg: 48 96% 89%;
+  --status-done-fg: 160 84% 39%;
+  --status-done-bg: 149 80% 90%;
+  --accent-pink: 330 81% 60%;
+  --accent-violet: 258 90% 66%;
+  --accent-sky: 199 89% 48%;
+  --accent-rose: 350 89% 60%;
+}
+
+.dark {
+  --brand: 173 80% 40%;          /* #14B8A6 */
+  --cta: 25 96% 61%;             /* #FB923C */
+  --page: 0 0% 4%;               /* #0A0A0A */
+  --card: 0 0% 9%;               /* #171717 */
+  --ink: 210 40% 96%;            /* #F1F5F9 */
+  --muted-ink: 215 20% 65%;      /* #94A3B8 */
+  --line: 0 0% 15%;              /* #262626 */
+  /* status + accent tokens unchanged in dark */
+}
+
 @layer base {
-  :root {
-    --brand: 174 84% 32%;          /* #0D9488 */
-    --cta: 21 90% 53%;             /* #F97316 */
-    --page: 240 14% 96%;           /* #F5F5F7 */
-    --card: 0 0% 100%;             /* #FFFFFF */
-    --ink: 222 47% 11%;            /* #0F172A */
-    --muted-ink: 215 19% 35%;      /* #475569 — renamed from "muted" to avoid shadcn collision */
-    --line: 213 27% 91%;           /* #E2E8F0 */
-    --status-planned-fg: 215 19% 47%;
-    --status-planned-bg: 210 40% 96%;
-    --status-progress-fg: 38 92% 50%;
-    --status-progress-bg: 48 96% 89%;
-    --status-done-fg: 160 84% 39%;
-    --status-done-bg: 149 80% 90%;
-    --accent-pink: 330 81% 60%;
-    --accent-violet: 258 90% 66%;
-    --accent-sky: 199 89% 48%;
-    --accent-rose: 350 89% 60%;
-  }
-
-  .dark {
-    --brand: 173 80% 40%;          /* #14B8A6 */
-    --cta: 21 95% 61%;             /* #FB923C */
-    --page: 0 0% 4%;               /* #0A0A0A */
-    --card: 0 0% 9%;               /* #171717 */
-    --ink: 210 40% 96%;            /* #F1F5F9 */
-    --muted-ink: 215 20% 65%;      /* #94A3B8 */
-    --line: 0 0% 15%;              /* #262626 */
-    /* status + accent tokens unchanged in dark */
-  }
-
   html {
     font-family: theme("fontFamily.sans");
     color-scheme: light;
@@ -627,7 +626,7 @@ npx shadcn@latest add button card dialog input skeleton sonner scroll-area separ
 :root {
   /* 우리 프로젝트 토큰 (Task 2에서 정의) */
   --brand: 174 84% 32%;
-  --cta: 21 90% 53%;
+  --cta: 25 95% 53%;
   --page: 240 14% 96%;
   --card: 0 0% 100%;
   --ink: 222 47% 11%;

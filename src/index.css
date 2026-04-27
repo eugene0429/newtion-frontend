@@ -2,38 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand: 174 84% 32%;          /* #0D9488 */
+  --cta: 25 95% 53%;             /* #F97316 */
+  --page: 240 14% 96%;           /* #F5F5F7 */
+  --card: 0 0% 100%;             /* #FFFFFF */
+  --ink: 222 47% 11%;            /* #0F172A */
+  --muted-ink: 215 19% 35%;      /* #475569 — renamed from "muted" to avoid shadcn collision */
+  --line: 213 27% 91%;           /* #E2E8F0 */
+  --status-planned-fg: 215 19% 47%;
+  --status-planned-bg: 210 40% 96%;
+  --status-progress-fg: 38 92% 50%;
+  --status-progress-bg: 48 96% 89%;
+  --status-done-fg: 160 84% 39%;
+  --status-done-bg: 149 80% 90%;
+  --accent-pink: 330 81% 60%;
+  --accent-violet: 258 90% 66%;
+  --accent-sky: 199 89% 48%;
+  --accent-rose: 350 89% 60%;
+}
+
+.dark {
+  --brand: 173 80% 40%;          /* #14B8A6 */
+  --cta: 25 96% 61%;             /* #FB923C */
+  --page: 0 0% 4%;               /* #0A0A0A */
+  --card: 0 0% 9%;               /* #171717 */
+  --ink: 210 40% 96%;            /* #F1F5F9 */
+  --muted-ink: 215 20% 65%;      /* #94A3B8 */
+  --line: 0 0% 15%;              /* #262626 */
+  /* status + accent tokens unchanged in dark */
+}
+
 @layer base {
-  :root {
-    --brand: 174 84% 32%;          /* #0D9488 */
-    --cta: 21 90% 53%;             /* #F97316 */
-    --page: 240 14% 96%;           /* #F5F5F7 */
-    --card: 0 0% 100%;             /* #FFFFFF */
-    --ink: 222 47% 11%;            /* #0F172A */
-    --muted-ink: 215 19% 35%;      /* #475569 — renamed from "muted" to avoid shadcn collision */
-    --line: 213 27% 91%;           /* #E2E8F0 */
-    --status-planned-fg: 215 19% 47%;
-    --status-planned-bg: 210 40% 96%;
-    --status-progress-fg: 38 92% 50%;
-    --status-progress-bg: 48 96% 89%;
-    --status-done-fg: 160 84% 39%;
-    --status-done-bg: 149 80% 90%;
-    --accent-pink: 330 81% 60%;
-    --accent-violet: 258 90% 66%;
-    --accent-sky: 199 89% 48%;
-    --accent-rose: 350 89% 60%;
-  }
-
-  .dark {
-    --brand: 173 80% 40%;          /* #14B8A6 */
-    --cta: 21 95% 61%;             /* #FB923C */
-    --page: 0 0% 4%;               /* #0A0A0A */
-    --card: 0 0% 9%;               /* #171717 */
-    --ink: 210 40% 96%;            /* #F1F5F9 */
-    --muted-ink: 215 20% 65%;      /* #94A3B8 */
-    --line: 0 0% 15%;              /* #262626 */
-    /* status + accent tokens unchanged in dark */
-  }
-
   html {
     font-family: theme("fontFamily.sans");
     color-scheme: light;
