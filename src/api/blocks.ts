@@ -29,6 +29,7 @@ export async function getBlockTree(pageId: string): Promise<BlockTreeResponse> {
 }
 
 export interface CreateBlockInput {
+  _id?: string;
   pageId: string;
   parentBlockId?: string | null;
   type: BlockType;

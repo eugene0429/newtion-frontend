@@ -42,7 +42,7 @@ export const blocksHandlers = [
   http.post("*/blocks/batch", async ({ request }) => {
     const { items } = (await request.json()) as { items: Partial<Block>[] };
     const created: Block[] = items.map((item, i) => ({
-      _id: newId("bl"),
+      _id: item._id ?? newId("bl"),
       pageId: item.pageId!,
       parentBlockId: item.parentBlockId ?? null,
       type: item.type!,
@@ -61,7 +61,7 @@ export const blocksHandlers = [
   http.post("*/blocks", async ({ request }) => {
     const body = (await request.json()) as Partial<Block>;
     const b: Block = {
-      _id: newId("bl"),
+      _id: body._id ?? newId("bl"),
       pageId: body.pageId!,
       parentBlockId: body.parentBlockId ?? null,
       type: body.type!,
