@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { useModalStore } from "@/store/modalStore";
 import { cn } from "@/lib/cn";
 
@@ -38,6 +39,9 @@ export function ProjectModalShell({
             : "max-w-4xl max-h-[85vh] overflow-y-auto",
         )}
       >
+        <VisuallyHidden.Root>
+          <DialogTitle>프로젝트 상세</DialogTitle>
+        </VisuallyHidden.Root>
         <button
           type="button"
           onClick={toggleFullscreen}
