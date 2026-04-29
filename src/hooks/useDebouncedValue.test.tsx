@@ -3,8 +3,12 @@ import { renderHook, act } from "@testing-library/react";
 import { useDebouncedValue } from "./useDebouncedValue";
 
 describe("useDebouncedValue", () => {
-  beforeEach(() => vi.useFakeTimers());
-  afterEach(() => vi.useRealTimers());
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it("초기 값을 즉시 반환한다", () => {
     const { result } = renderHook(() => useDebouncedValue("hello", 200));
