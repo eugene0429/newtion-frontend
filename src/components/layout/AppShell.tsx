@@ -1,8 +1,11 @@
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { CommandPalette } from "@/components/search/CommandPalette";
+import { useGlobalKeybindings } from "@/hooks/useGlobalKeybindings";
 
 export function AppShell() {
+  useGlobalKeybindings();
   return (
     <div className="flex min-h-screen bg-page text-ink">
       <Sidebar />
@@ -12,6 +15,7 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+      <CommandPalette />
     </div>
   );
 }
