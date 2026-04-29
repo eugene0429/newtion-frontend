@@ -35,9 +35,16 @@ export function useUpdatePage() {
         pageId,
       ]);
       if (previous) {
+        const { properties: nextProps, ...rest } = input;
         qc.setQueryData(["page-detail", pageId], {
           ...previous,
-          page: { ...previous.page, ...input },
+          page: {
+            ...previous.page,
+            ...rest,
+            properties: nextProps
+              ? { ...previous.page.properties, ...nextProps }
+              : previous.page.properties,
+          },
         });
       }
       return { previous };

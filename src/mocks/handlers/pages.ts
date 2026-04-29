@@ -107,8 +107,14 @@ export const pagesHandlers = [
   http.patch("*/pages/:pageId", async ({ params, request }) => {
     const body = (await request.json()) as Partial<Page>;
     const p = db.pages.find((x) => x._id === params.pageId);
-    if (!p) return HttpResponse.json({ message: "not found" }, { status: 404 });
-    Object.assign(p, body, { updatedAt: nowIso() });
+    if (!p) {
+      return HttpResponse.json({ message: "not found" }, { status: 404 });
+    }
+    const { properties: nextProps, ...rest } = body;
+    Object.assign(p, rest, { updatedAt: nowIso() });
+    if (nextProps) {
+      p.properties = { ...p.properties, ...nextProps };
+    }
     return HttpResponse.json(p);
   }),
 

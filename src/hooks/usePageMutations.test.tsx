@@ -1,4 +1,4 @@
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { server } from "@/test/msw";
 import { resetDb, db } from "@/mocks/db/store";
@@ -61,6 +61,60 @@ describe("useUpdatePage", () => {
     expect(db.pages.find((p) => p._id === meeting._id)!.title).toBe(
       "수정된 제목",
     );
+  });
+
+  it("부분 properties 업데이트는 다른 properties를 보존한다 (서버)", async () => {
+    const project = db.pages.find(
+      (p) => p.properties.type === "project" && p.properties.tags?.length,
+    )!;
+    const originalType = project.properties.type;
+    const originalTags = project.properties.tags;
+
+    const { result } = renderHook(() => useUpdatePage(), {
+      wrapper: wrapper(),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({
+        pageId: project._id,
+        input: { properties: { status: "in_progress" } },
+      });
+    });
+
+    const updated = db.pages.find((p) => p._id === project._id)!;
+    expect(updated.properties.status).toBe("in_progress");
+    expect(updated.properties.type).toBe(originalType);
+    expect(updated.properties.tags).toEqual(originalTags);
+  });
+
+  it("optimistic 캐시도 properties 를 deep-merge 한다", async () => {
+    const project = db.pages.find(
+      (p) => p.properties.type === "project" && p.properties.tags?.length,
+    )!;
+    const qc = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    qc.setQueryData(["page-detail", project._id], {
+      page: project,
+      blocks: [],
+      blockTree: [],
+    });
+    const w = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(() => useUpdatePage(), { wrapper: w });
+    result.current.mutate({
+      pageId: project._id,
+      input: { properties: { status: "done" } },
+    });
+    await waitFor(() => {
+      const cached = qc.getQueryData<{ page: typeof project }>([
+        "page-detail",
+        project._id,
+      ])!;
+      expect(cached.page.properties.status).toBe("done");
+      expect(cached.page.properties.type).toBe(project.properties.type);
+      expect(cached.page.properties.tags).toEqual(project.properties.tags);
+    });
   });
 });
 
