@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useRef } from "react";
+import { Suspense, lazy, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { usePageDetail } from "@/hooks/usePageDetail";
 import { useUpdatePage } from "@/hooks/usePageMutations";
@@ -39,8 +39,6 @@ export default function MeetingDetailPage() {
     initialBlocks,
   });
 
-  const flushRef = useRef<() => void>(() => {});
-
   if (detailQuery.isLoading) {
     return <div className="p-4 text-muted-ink">불러오는 중...</div>;
   }
@@ -68,9 +66,6 @@ export default function MeetingDetailPage() {
           key={pageId}
           initialContent={initialBlockNote}
           onChange={(blocks) => autosave.save(blocks)}
-          onMount={(flush) => {
-            flushRef.current = flush;
-          }}
         />
       </Suspense>
     </div>

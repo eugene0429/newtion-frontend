@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useThemeStore } from "@/store/themeStore";
@@ -11,7 +11,6 @@ import type { BlockNoteLikeBlock } from "@/lib/blockAdapter";
 interface BlockEditorProps {
   initialContent: BlockNoteLikeBlock[];
   onChange: (blocks: BlockNoteLikeBlock[]) => void;
-  onMount?: (flush: () => void) => void;
 }
 
 function resolveDark(mode: "system" | "light" | "dark"): boolean {
@@ -23,7 +22,6 @@ function resolveDark(mode: "system" | "light" | "dark"): boolean {
 export default function BlockEditor({
   initialContent,
   onChange,
-  onMount,
 }: BlockEditorProps) {
   const mode = useThemeStore((s) => s.mode);
   const isDark = useMemo(() => resolveDark(mode), [mode]);
@@ -34,10 +32,6 @@ export default function BlockEditor({
       ? (initialContent as NonNullable<Parameters<typeof useCreateBlockNote>[0]>["initialContent"])
       : undefined,
   });
-
-  useEffect(() => {
-    if (onMount) onMount(() => onChange(editor.document as unknown as BlockNoteLikeBlock[]));
-  }, [editor, onChange, onMount]);
 
   return (
     <BlockNoteView

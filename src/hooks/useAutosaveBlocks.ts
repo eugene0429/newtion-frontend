@@ -106,7 +106,10 @@ export function useAutosaveBlocks(
     onSuccess: (next) => {
       snapshotRef.current = next;
       setStatus("saved");
-      if (pageId) qc.invalidateQueries({ queryKey: ["blocks", pageId] });
+      if (pageId) {
+        qc.invalidateQueries({ queryKey: ["blocks", pageId] });
+        qc.invalidateQueries({ queryKey: ["page-detail", pageId] });
+      }
     },
     onError: () => {
       setStatus("error");
