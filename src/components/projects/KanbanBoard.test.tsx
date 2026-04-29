@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw";
+import type { DragEndEvent } from "@dnd-kit/core";
 import { server } from "@/test/msw";
 import { db } from "@/mocks/db/store";
 import { seed } from "@/mocks/db/seed";
@@ -100,7 +101,7 @@ describe("KanbanBoard", () => {
       }),
     );
 
-    let dragEnd: ((args: { active: { id: string }; over: { id: string } | null }) => void) | null = null;
+    let dragEnd: ((event: DragEndEvent) => void) | null = null;
     render(
       wrap(
         <KanbanBoard
@@ -119,7 +120,7 @@ describe("KanbanBoard", () => {
       dragEnd!({
         active: { id: target._id },
         over: { id: "column:done" },
-      });
+      } as unknown as DragEndEvent);
     });
 
     await vi.waitFor(() => {
