@@ -163,3 +163,27 @@ describe("blockAdapter — type mapping", () => {
     expect(roundtrip).toEqual(blockNoteDoc);
   });
 });
+
+describe("blockAdapter — mention link inline", () => {
+  it("link 인라인 (멘션 직렬화 형식) 이 라운드트립에서 보존된다", () => {
+    const original: BlockNoteLikeBlock[] = [
+      {
+        id: "blk_1",
+        type: "paragraph",
+        props: {},
+        content: [
+          { type: "text", text: "관련 프로젝트: " } as never,
+          {
+            type: "link",
+            href: "/projects/pg_proj_a",
+            content: [{ type: "text", text: "프로젝트 A" }],
+          } as never,
+        ],
+        children: [],
+      },
+    ];
+    const backend = blockNoteToBackend(original, "page-1");
+    const roundtrip = backendToBlockNote(backend);
+    expect(roundtrip).toEqual(original);
+  });
+});
