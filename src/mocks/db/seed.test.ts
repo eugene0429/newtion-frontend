@@ -28,4 +28,14 @@ describe("seed", () => {
       expect(blocks.length).toBeGreaterThanOrEqual(3);
     });
   });
+
+  it("프로젝트 8개 각각에 블록 트리가 시드된다", () => {
+    seed();
+    const projects = db.pages.filter((p) => p.properties.type === "project");
+    expect(projects).toHaveLength(8);
+    for (const project of projects) {
+      const blocks = db.blocks.filter((b) => b.pageId === project._id);
+      expect(blocks.length).toBeGreaterThanOrEqual(2);
+    }
+  });
 });

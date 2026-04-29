@@ -55,6 +55,7 @@ export function seed(options: SeedOptions = {}): void {
       updatedAt: nowIso(),
       removedAt: null,
     });
+    seedProjectBlocks(id, i);
   });
 
   for (let i = 0; i < 5; i += 1) {
@@ -139,6 +140,60 @@ function seedMeetingBlocks(pageId: string, dateStr: string): void {
         inline: [{ type: "text", text: "이번주 우선순위", styles: {} }],
       },
       order: 3,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      removedAt: null,
+    },
+  ];
+  db.blocks.push(...items);
+}
+
+function seedProjectBlocks(pageId: string, index: number): void {
+  const items: Block[] = [
+    {
+      _id: newId("bl"),
+      pageId,
+      parentBlockId: null,
+      type: "heading_2",
+      content: {
+        props: { level: 2 },
+        inline: [{ type: "text", text: "개요", styles: {} }],
+      },
+      order: 0,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      removedAt: null,
+    },
+    {
+      _id: newId("bl"),
+      pageId,
+      parentBlockId: null,
+      type: "paragraph",
+      content: {
+        props: {},
+        inline: [
+          {
+            type: "text",
+            text: `프로젝트 ${index + 1} 의 목표와 진행 상황을 기록합니다.`,
+            styles: {},
+          },
+        ],
+      },
+      order: 1,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      removedAt: null,
+    },
+    {
+      _id: newId("bl"),
+      pageId,
+      parentBlockId: null,
+      type: "to_do",
+      content: {
+        props: { checked: false },
+        inline: [{ type: "text", text: "다음 마일스톤 정의", styles: {} }],
+      },
+      order: 2,
       createdAt: nowIso(),
       updatedAt: nowIso(),
       removedAt: null,
