@@ -26,6 +26,20 @@ export async function createWorkspace(
   return data;
 }
 
+export interface UpdateWorkspaceInput {
+  name?: string;
+  icon?: string;
+  description?: string;
+}
+
+export async function updateWorkspace(
+  workspaceId: string,
+  input: UpdateWorkspaceInput,
+): Promise<Workspace> {
+  const { data } = await api.patch<Workspace>(`/workspaces/${workspaceId}`, input);
+  return data;
+}
+
 export interface SidebarTreeNode {
   _id: string;
   title: string;

@@ -50,6 +50,17 @@ export const workspacesHandlers = [
     return HttpResponse.json({ workspace, rootFolders });
   }),
 
+  http.patch("*/workspaces/:workspaceId", async ({ params, request }) => {
+    const ws = db.workspaces.find((w) => w._id === params.workspaceId);
+    if (!ws) return HttpResponse.json({ message: "not found" }, { status: 404 });
+    const body = (await request.json()) as Partial<Pick<Workspace, "name" | "icon" | "description">>;
+    if (typeof body.name === "string") ws.name = body.name;
+    if (typeof body.icon === "string") ws.icon = body.icon;
+    if (typeof body.description === "string") ws.description = body.description;
+    ws.updatedAt = nowIso();
+    return HttpResponse.json(ws);
+  }),
+
   http.get("*/workspaces/:workspaceId/sidebar", ({ params }) => {
     const ws = db.workspaces.find((w) => w._id === params.workspaceId);
     if (!ws) return HttpResponse.json({ message: "not found" }, { status: 404 });
