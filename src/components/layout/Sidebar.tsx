@@ -2,6 +2,8 @@ import { NavLink } from "react-router-dom";
 import { Home, FileText, KanbanSquare, Settings, Search } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useCommandPaletteStore } from "@/store/commandPaletteStore";
+import { SidebarFavorites } from "./SidebarFavorites";
+import { SidebarRecent } from "./SidebarRecent";
 import { cn } from "@/lib/cn";
 
 const NAV = [
@@ -36,7 +38,7 @@ export function Sidebar() {
         </button>
       </div>
 
-      <nav className="flex-1 px-2 py-3 space-y-1">
+      <nav className="px-2 py-3 space-y-1">
         {NAV.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -56,6 +58,15 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      <div className="flex-1 overflow-y-auto">
+        {!collapsed && (
+          <>
+            <SidebarFavorites />
+            <SidebarRecent />
+          </>
+        )}
+      </div>
 
       <div className="border-t border-line p-2">
         <NavLink
