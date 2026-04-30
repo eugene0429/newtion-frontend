@@ -1,8 +1,11 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { usePageDetail } from "@/hooks/usePageDetail";
 import { useUpdatePage } from "@/hooks/usePageMutations";
 import { useAutosaveBlocks } from "@/hooks/useAutosaveBlocks";
+import { useSyncMentions } from "@/hooks/useSyncMentions";
+import { useWorkspace } from "@/hooks/useWorkspace";
+import { searchPages } from "@/api/pages";
 import { ProjectModalShell } from "@/components/projects/ProjectModalShell";
 import { ProjectMetaBar } from "@/components/projects/ProjectMetaBar";
 import { RelatedMeetings } from "@/components/projects/RelatedMeetings";
@@ -21,6 +24,8 @@ export default function ProjectDetailPage() {
   const { id: pageId } = useParams<{ id: string }>();
   const detailQuery = usePageDetail(pageId);
   const updatePage = useUpdatePage();
+  const { workspaceId } = useWorkspace();
+  const [liveBlocks, setLiveBlocks] = useState<BlockNoteLikeBlock[]>([]);
 
   const initialBlocks: BlockInput[] = useMemo(() => {
     if (!detailQuery.data) return [];
@@ -43,6 +48,20 @@ export default function ProjectDetailPage() {
     pageId,
     initialBlocks,
   });
+
+  useSyncMentions({
+    pageId,
+    currentMentionedPageIds: detailQuery.data?.page.properties.mentionedPageIds ?? [],
+    blocks: liveBlocks,
+  });
+
+  const onMentionSearch = useCallback(
+    async (query: string) => {
+      if (!workspaceId) return [];
+      return searchPages(workspaceId, query);
+    },
+    [workspaceId],
+  );
 
   const handleClose = () => navigate("/projects");
 
@@ -96,7 +115,11 @@ export default function ProjectDetailPage() {
             <BlockEditor
               key={pageId}
               initialContent={initialBlockNote}
-              onChange={(blocks) => autosave.save(blocks)}
+              onChange={(blocks) => {
+                setLiveBlocks(blocks);
+                autosave.save(blocks);
+              }}
+              onMentionSearch={onMentionSearch}
             />
           </Suspense>
 

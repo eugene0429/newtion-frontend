@@ -1,8 +1,11 @@
-import { Suspense, lazy, useMemo } from "react";
+import { Suspense, lazy, useCallback, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { usePageDetail } from "@/hooks/usePageDetail";
 import { useUpdatePage } from "@/hooks/usePageMutations";
 import { useAutosaveBlocks } from "@/hooks/useAutosaveBlocks";
+import { useSyncMentions } from "@/hooks/useSyncMentions";
+import { searchPages } from "@/api/pages";
+import { useWorkspace } from "@/hooks/useWorkspace";
 import { MeetingHeader } from "@/components/meetings/MeetingHeader";
 import {
   backendToBlockNote,
@@ -16,6 +19,8 @@ export default function MeetingDetailPage() {
   const { id: pageId } = useParams<{ id: string }>();
   const detailQuery = usePageDetail(pageId);
   const updatePage = useUpdatePage();
+  const { workspaceId } = useWorkspace();
+  const [liveBlocks, setLiveBlocks] = useState<BlockNoteLikeBlock[]>([]);
 
   const initialBlocks: BlockInput[] = useMemo(() => {
     if (!detailQuery.data) return [];
@@ -38,6 +43,20 @@ export default function MeetingDetailPage() {
     pageId,
     initialBlocks,
   });
+
+  useSyncMentions({
+    pageId,
+    currentMentionedPageIds: detailQuery.data?.page.properties.mentionedPageIds ?? [],
+    blocks: liveBlocks,
+  });
+
+  const onMentionSearch = useCallback(
+    async (query: string) => {
+      if (!workspaceId) return [];
+      return searchPages(workspaceId, query);
+    },
+    [workspaceId],
+  );
 
   if (detailQuery.isLoading) {
     return <div className="p-4 text-muted-ink">불러오는 중...</div>;
@@ -65,7 +84,11 @@ export default function MeetingDetailPage() {
         <BlockEditor
           key={pageId}
           initialContent={initialBlockNote}
-          onChange={(blocks) => autosave.save(blocks)}
+          onChange={(blocks) => {
+            setLiveBlocks(blocks);
+            autosave.save(blocks);
+          }}
+          onMentionSearch={onMentionSearch}
         />
       </Suspense>
     </div>
