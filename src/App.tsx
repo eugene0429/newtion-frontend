@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { AppShell } from "@/components/layout/AppShell";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ErrorBoundary } from "@/components/feedback/ErrorBoundary";
+import { AppBootstrap } from "@/components/feedback/AppBootstrap";
 import HomePage from "@/routes/HomePage";
 import MeetingsListPage from "@/routes/MeetingsListPage";
 import MeetingDetailPage from "@/routes/MeetingDetailPage";
@@ -21,19 +22,21 @@ export default function App() {
     >
       <ThemeProvider>
         <BrowserRouter>
-          <Routes>
-            <Route element={<AppShell />}>
-              <Route index element={<HomePage />} />
-              <Route path="meetings" element={<MeetingsListPage />} />
-              <Route path="meetings/:id" element={<MeetingDetailPage />} />
-              <Route path="projects" element={<ProjectsKanbanPage />}>
-                <Route path=":id" element={<ProjectDetailPage />} />
+          <AppBootstrap>
+            <Routes>
+              <Route element={<AppShell />}>
+                <Route index element={<HomePage />} />
+                <Route path="meetings" element={<MeetingsListPage />} />
+                <Route path="meetings/:id" element={<MeetingDetailPage />} />
+                <Route path="projects" element={<ProjectsKanbanPage />}>
+                  <Route path=":id" element={<ProjectDetailPage />} />
+                </Route>
+                <Route path="search" element={<SearchPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Route>
-              <Route path="search" element={<SearchPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
+            </Routes>
+          </AppBootstrap>
         </BrowserRouter>
         <Toaster richColors position="top-right" />
       </ThemeProvider>
