@@ -55,3 +55,5 @@ if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
 afterEach(() => {
   cleanup();
 });
+
+import "./axe";
