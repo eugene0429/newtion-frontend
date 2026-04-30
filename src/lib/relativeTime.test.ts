@@ -8,7 +8,9 @@ describe("relativeTime", () => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
   });
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it("60초 미만은 '방금 전'", () => {
     expect(relativeTime("2026-04-29T11:59:30Z")).toBe("방금 전");
