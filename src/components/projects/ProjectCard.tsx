@@ -26,6 +26,7 @@ export function ProjectCard({ project, preview }: ProjectCardProps) {
         "group block rounded-card bg-card border border-line p-3",
         "shadow-elevation hover:shadow-elevation-hover",
         "transition-all duration-card hover:scale-[1.01]",
+        "motion-reduce:transition-none motion-reduce:hover:scale-100",
       )}
     >
       <div className="flex items-start justify-between gap-2 mb-2">

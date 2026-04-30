@@ -21,6 +21,7 @@ export function MeetingCard({ meeting, preview }: MeetingCardProps) {
         "group block rounded-card bg-card border border-line p-4",
         "shadow-elevation hover:shadow-elevation-hover",
         "transition-all duration-card hover:scale-[1.02]",
+        "motion-reduce:transition-none motion-reduce:hover:scale-100",
       )}
     >
       <div className="flex items-center justify-between mb-2">

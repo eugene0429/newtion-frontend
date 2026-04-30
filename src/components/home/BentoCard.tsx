@@ -40,6 +40,7 @@ export function BentoCard({
       className={cn(
         "relative rounded-card bg-card border border-line p-4",
         "shadow-elevation transition-shadow hover:shadow-elevation-hover",
+        "motion-reduce:transition-none",
         "before:content-[''] before:absolute before:left-0 before:top-3 before:bottom-3 before:w-0.5 before:rounded",
         ACCENT_BORDER[accent],
         SPAN[span],
