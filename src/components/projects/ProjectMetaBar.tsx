@@ -6,6 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PinToggle } from "@/components/properties/PinToggle";
+import { ProgressEditor } from "@/components/properties/ProgressEditor";
 import {
   PROJECT_STATUSES,
   projectStatusBadgeClass,
@@ -18,12 +19,14 @@ interface ProjectMetaBarProps {
   project: Page;
   onStatusChange: (next: ProjectStatus) => void;
   onPinToggle: () => void;
+  onProgressChange: (next: number | undefined) => void;
 }
 
 export function ProjectMetaBar({
   project,
   onStatusChange,
   onPinToggle,
+  onProgressChange,
 }: ProjectMetaBarProps) {
   const status = (project.properties.status ?? "planned") as ProjectStatus;
   const progress = project.properties.progress;
@@ -57,9 +60,10 @@ export function ProjectMetaBar({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      {typeof progress === "number" && (
-        <span aria-label={`진행률 ${progress}%`}>📊 {progress}%</span>
-      )}
+      <ProgressEditor
+        value={typeof progress === "number" ? progress : undefined}
+        onCommit={onProgressChange}
+      />
       {dueDate && <span aria-label="마감일">📅 {dueDate}</span>}
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1" aria-label="태그">

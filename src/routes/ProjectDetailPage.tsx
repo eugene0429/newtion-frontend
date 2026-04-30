@@ -113,6 +113,13 @@ export default function ProjectDetailPage() {
                     currentlyPinned: detailQuery.data!.page.properties.isPinned === true,
                   });
                 }}
+                onProgressChange={(next) => {
+                  if (!pageId) return;
+                  updatePage.mutate({
+                    pageId,
+                    input: { properties: { progress: next } },
+                  });
+                }}
               />
             </div>
             <SaveIndicator status={autosave.status} />
