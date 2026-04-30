@@ -127,6 +127,13 @@ export default function ProjectDetailPage() {
                     input: { properties: { tags: next } },
                   });
                 }}
+                onDueDateChange={(next) => {
+                  if (!pageId) return;
+                  updatePage.mutate({
+                    pageId,
+                    input: { properties: { dueDate: next } },
+                  });
+                }}
               />
             </div>
             <SaveIndicator status={autosave.status} />
