@@ -15,6 +15,7 @@ export function OfflineBanner() {
     }
     if (wasOffline.current) {
       wasOffline.current = false;
+      qc.resumePausedMutations();
       qc.invalidateQueries({ refetchType: "active" });
     }
   }, [online, qc]);
