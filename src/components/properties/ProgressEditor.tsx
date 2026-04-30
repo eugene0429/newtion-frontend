@@ -26,10 +26,12 @@ export function ProgressEditor({ value, onCommit }: Props) {
     setEditing(false);
     const parsed = parseInt(draft, 10);
     if (Number.isNaN(parsed)) {
-      onCommit(undefined);
+      if (typeof value === "number") onCommit(undefined);
       return;
     }
-    onCommit(clamp(parsed));
+    const next = clamp(parsed);
+    if (next === value) return;
+    onCommit(next);
   };
 
   const cancel = () => {

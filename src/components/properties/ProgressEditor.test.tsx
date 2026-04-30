@@ -55,4 +55,24 @@ describe("ProgressEditor", () => {
     expect(onCommit).not.toHaveBeenCalled();
     expect(screen.getByText(/42%/)).toBeInTheDocument();
   });
+
+  it("값이 변경되지 않으면 onCommit 을 호출하지 않는다", async () => {
+    const user = userEvent.setup();
+    const onCommit = vi.fn();
+    render(<ProgressEditor value={42} onCommit={onCommit} />);
+    await user.click(screen.getByText(/42%/));
+    await user.keyboard("{Enter}");
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it("undefined 값 + 추가 후 빈 input 으로 blur → commit 안 함 (no-op)", async () => {
+    const user = userEvent.setup();
+    const onCommit = vi.fn();
+    render(<ProgressEditor value={undefined} onCommit={onCommit} />);
+    await user.click(screen.getByRole("button", { name: /진행률 추가/i }));
+    const input = screen.getByLabelText(/진행률 입력/i);
+    await user.clear(input);
+    await user.keyboard("{Enter}");
+    expect(onCommit).not.toHaveBeenCalled();
+  });
 });
