@@ -5,6 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PinToggle } from "@/components/properties/PinToggle";
 import {
   PROJECT_STATUSES,
   projectStatusBadgeClass,
@@ -16,19 +17,23 @@ import type { Page, ProjectStatus } from "@/types/page";
 interface ProjectMetaBarProps {
   project: Page;
   onStatusChange: (next: ProjectStatus) => void;
+  onPinToggle: () => void;
 }
 
 export function ProjectMetaBar({
   project,
   onStatusChange,
+  onPinToggle,
 }: ProjectMetaBarProps) {
   const status = (project.properties.status ?? "planned") as ProjectStatus;
   const progress = project.properties.progress;
   const dueDate = project.properties.dueDate;
   const tags = project.properties.tags ?? [];
+  const isPinned = project.properties.isPinned === true;
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm text-muted-ink">
+      <PinToggle isPinned={isPinned} onToggle={onPinToggle} size="md" />
       <DropdownMenu>
         <DropdownMenuTrigger
           className={cn(

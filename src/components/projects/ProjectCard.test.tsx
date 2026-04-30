@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ProjectCard } from "./ProjectCard";
 import type { Page } from "@/types/page";
 
@@ -27,10 +28,15 @@ function makeProject(overrides: Partial<Page["properties"]> = {}): Page {
 }
 
 function renderCard(project: Page, preview = "") {
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
   return render(
-    <MemoryRouter>
-      <ProjectCard project={project} preview={preview} />
-    </MemoryRouter>,
+    <QueryClientProvider client={qc}>
+      <MemoryRouter>
+        <ProjectCard project={project} preview={preview} />
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -58,9 +64,9 @@ describe("ProjectCard", () => {
     expect(screen.getByText("infra")).toBeInTheDocument();
   });
 
-  it("isPinned 면 핀 아이콘 노출", () => {
+  it("isPinned 면 핀 토글 버튼 노출", () => {
     renderCard(makeProject({ isPinned: true }));
-    expect(screen.getByLabelText("고정됨")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "즐겨찾기 해제" })).toBeInTheDocument();
   });
 
   it("클릭하면 /projects/:id 로 이동하는 link 역할", () => {

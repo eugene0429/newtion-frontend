@@ -4,6 +4,7 @@ import { usePageDetail } from "@/hooks/usePageDetail";
 import { useUpdatePage } from "@/hooks/usePageMutations";
 import { useAutosaveBlocks } from "@/hooks/useAutosaveBlocks";
 import { useSyncMentions } from "@/hooks/useSyncMentions";
+import { useTogglePin } from "@/hooks/useTogglePin";
 import { searchPages } from "@/api/pages";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { MeetingHeader } from "@/components/meetings/MeetingHeader";
@@ -50,6 +51,8 @@ export default function MeetingDetailPage() {
     blocks: liveBlocks,
   });
 
+  const togglePin = useTogglePin();
+
   const onMentionSearch = useCallback(
     async (query: string) => {
       if (!workspaceId) return [];
@@ -68,17 +71,22 @@ export default function MeetingDetailPage() {
   }
 
   const page = detailQuery.data.page;
+  const isPinned = page.properties.isPinned === true;
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
       <MeetingHeader
         title={page.title}
         date={page.properties.date}
+        isPinned={isPinned}
+        saveStatus={autosave.status}
         onTitleChange={(next) => {
           if (!pageId) return;
           updatePage.mutate({ pageId, input: { title: next } });
         }}
-        saveStatus={autosave.status}
+        onPinToggle={() =>
+          pageId && togglePin.mutate({ pageId, currentlyPinned: isPinned })
+        }
       />
       <Suspense fallback={<div className="text-muted-ink">에디터 준비 중...</div>}>
         <BlockEditor

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Pin } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { PinToggle } from "@/components/properties/PinToggle";
+import { useTogglePin } from "@/hooks/useTogglePin";
 import type { Page, ProjectStatus } from "@/types/page";
 
 interface ProjectCardProps {
@@ -12,9 +13,11 @@ export function ProjectCard({ project, preview }: ProjectCardProps) {
   const status = (project.properties.status ?? "planned") as ProjectStatus;
   const progress = project.properties.progress;
   const tags = project.properties.tags ?? [];
+  const isPinned = project.properties.isPinned === true;
   const showProgress =
     status === "in_progress" && typeof progress === "number";
   const clampedProgress = Math.max(0, Math.min(100, progress ?? 0));
+  const togglePin = useTogglePin();
 
   return (
     <Link
@@ -29,9 +32,16 @@ export function ProjectCard({ project, preview }: ProjectCardProps) {
         <h3 className="text-sm font-semibold text-ink line-clamp-1">
           {project.title || "제목 없음"}
         </h3>
-        {project.properties.isPinned && (
-          <Pin className="w-3 h-3 text-tag-pink shrink-0" aria-label="고정됨" />
-        )}
+        <PinToggle
+          isPinned={isPinned}
+          onToggle={() =>
+            togglePin.mutate({ pageId: project._id, currentlyPinned: isPinned })
+          }
+          className={cn(
+            "shrink-0",
+            !isPinned && "opacity-0 group-hover:opacity-100 transition-opacity",
+          )}
+        />
       </div>
       {preview && (
         <p className="text-xs text-muted-ink line-clamp-2 whitespace-pre-line mb-2">

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Pin } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { formatMeetingDate } from "@/lib/formatMeetingDate";
+import { PinToggle } from "@/components/properties/PinToggle";
+import { useTogglePin } from "@/hooks/useTogglePin";
 import type { Page } from "@/types/page";
 
 interface MeetingCardProps {
@@ -10,6 +11,9 @@ interface MeetingCardProps {
 }
 
 export function MeetingCard({ meeting, preview }: MeetingCardProps) {
+  const isPinned = meeting.properties.isPinned === true;
+  const togglePin = useTogglePin();
+
   return (
     <Link
       to={`/meetings/${meeting._id}`}
@@ -23,12 +27,15 @@ export function MeetingCard({ meeting, preview }: MeetingCardProps) {
         <span className="text-xs font-medium text-muted-ink">
           {formatMeetingDate(meeting.properties.date)}
         </span>
-        {meeting.properties.isPinned && (
-          <Pin
-            className="w-3.5 h-3.5 text-tag-pink"
-            aria-label="고정됨"
-          />
-        )}
+        <PinToggle
+          isPinned={isPinned}
+          onToggle={() =>
+            togglePin.mutate({ pageId: meeting._id, currentlyPinned: isPinned })
+          }
+          className={cn(
+            !isPinned && "opacity-0 group-hover:opacity-100 transition-opacity",
+          )}
+        />
       </div>
       <h3 className="text-base font-semibold text-ink mb-1 line-clamp-1">
         {meeting.title || "제목 없음"}

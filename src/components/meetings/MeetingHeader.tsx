@@ -2,20 +2,25 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { SaveIndicator } from "@/components/editor/SaveIndicator";
+import { PinToggle } from "@/components/properties/PinToggle";
 import { formatMeetingDate } from "@/lib/formatMeetingDate";
 import type { AutosaveStatus } from "@/hooks/useAutosaveBlocks";
 
 interface MeetingHeaderProps {
   title: string;
   date?: string;
+  isPinned: boolean;
   onTitleChange: (next: string) => void;
+  onPinToggle: () => void;
   saveStatus: AutosaveStatus;
 }
 
 export function MeetingHeader({
   title,
   date,
+  isPinned,
   onTitleChange,
+  onPinToggle,
   saveStatus,
 }: MeetingHeaderProps) {
   const navigate = useNavigate();
@@ -37,7 +42,10 @@ export function MeetingHeader({
           <ArrowLeft className="w-4 h-4" />
           뒤로
         </button>
-        <SaveIndicator status={saveStatus} />
+        <div className="flex items-center gap-2">
+          <PinToggle isPinned={isPinned} onToggle={onPinToggle} size="md" />
+          <SaveIndicator status={saveStatus} />
+        </div>
       </div>
       <div className="mt-3">
         <input

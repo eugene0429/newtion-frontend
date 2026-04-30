@@ -4,6 +4,7 @@ import { usePageDetail } from "@/hooks/usePageDetail";
 import { useUpdatePage } from "@/hooks/usePageMutations";
 import { useAutosaveBlocks } from "@/hooks/useAutosaveBlocks";
 import { useSyncMentions } from "@/hooks/useSyncMentions";
+import { useTogglePin } from "@/hooks/useTogglePin";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { searchPages } from "@/api/pages";
 import { ProjectModalShell } from "@/components/projects/ProjectModalShell";
@@ -63,6 +64,7 @@ export default function ProjectDetailPage() {
     [workspaceId],
   );
 
+  const togglePin = useTogglePin();
   const handleClose = () => navigate("/projects");
 
   return (
@@ -102,6 +104,13 @@ export default function ProjectDetailPage() {
                   updatePage.mutate({
                     pageId,
                     input: { properties: { status: next } },
+                  });
+                }}
+                onPinToggle={() => {
+                  if (!pageId) return;
+                  togglePin.mutate({
+                    pageId,
+                    currentlyPinned: detailQuery.data!.page.properties.isPinned === true,
                   });
                 }}
               />
