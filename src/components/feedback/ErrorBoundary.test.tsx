@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ErrorBoundary } from "./ErrorBoundary";
 
@@ -10,12 +10,11 @@ function Boom({ shouldThrow }: { shouldThrow: boolean }) {
 
 describe("ErrorBoundary", () => {
   // jsdom 의 console.error 가 React error boundary 메시지를 시끄럽게 출력하므로 silence.
-  let consoleSpy: ReturnType<typeof vi.spyOn>;
   beforeEach(() => {
-    consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
   afterEach(() => {
-    consoleSpy.mockRestore();
+    vi.restoreAllMocks();
   });
 
   it("자식이 에러를 안 던지면 자식을 그대로 렌더한다", () => {
