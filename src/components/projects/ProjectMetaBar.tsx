@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PinToggle } from "@/components/properties/PinToggle";
 import { ProgressEditor } from "@/components/properties/ProgressEditor";
+import { TagsEditor } from "@/components/properties/TagsEditor";
 import {
   PROJECT_STATUSES,
   projectStatusBadgeClass,
@@ -20,6 +21,7 @@ interface ProjectMetaBarProps {
   onStatusChange: (next: ProjectStatus) => void;
   onPinToggle: () => void;
   onProgressChange: (next: number | undefined) => void;
+  onTagsChange: (next: string[]) => void;
 }
 
 export function ProjectMetaBar({
@@ -27,6 +29,7 @@ export function ProjectMetaBar({
   onStatusChange,
   onPinToggle,
   onProgressChange,
+  onTagsChange,
 }: ProjectMetaBarProps) {
   const status = (project.properties.status ?? "planned") as ProjectStatus;
   const progress = project.properties.progress;
@@ -65,18 +68,7 @@ export function ProjectMetaBar({
         onCommit={onProgressChange}
       />
       {dueDate && <span aria-label="마감일">📅 {dueDate}</span>}
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1" aria-label="태그">
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="text-[10px] px-1.5 py-0.5 rounded bg-tag-pink/10 text-tag-pink"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-      )}
+      <TagsEditor value={tags} onCommit={onTagsChange} />
     </div>
   );
 }

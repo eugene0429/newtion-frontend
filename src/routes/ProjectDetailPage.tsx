@@ -120,6 +120,13 @@ export default function ProjectDetailPage() {
                     input: { properties: { progress: next } },
                   });
                 }}
+                onTagsChange={(next) => {
+                  if (!pageId) return;
+                  updatePage.mutate({
+                    pageId,
+                    input: { properties: { tags: next } },
+                  });
+                }}
               />
             </div>
             <SaveIndicator status={autosave.status} />
