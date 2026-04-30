@@ -8,6 +8,7 @@ import { useCreatePage } from "@/hooks/usePageMutations";
 import { getBlockTree } from "@/api/blocks";
 import { extractBlockPreview } from "@/lib/extractBlockPreview";
 import { KanbanBoard } from "@/components/projects/KanbanBoard";
+import { KanbanBoardSkeleton } from "@/components/skeletons/KanbanBoardSkeleton";
 import type { ProjectStatus } from "@/types/page";
 
 export default function ProjectsKanbanPage() {
@@ -71,14 +72,7 @@ export default function ProjectsKanbanPage() {
       </header>
 
       {projectsQuery.isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="h-48 rounded-card bg-card-muted animate-pulse"
-            />
-          ))}
-        </div>
+        <KanbanBoardSkeleton />
       ) : (
         <KanbanBoard
           projects={projects}
