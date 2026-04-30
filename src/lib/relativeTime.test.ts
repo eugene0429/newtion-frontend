@@ -17,6 +17,7 @@ describe("relativeTime", () => {
   it("1-59분 전은 'N분 전'", () => {
     expect(relativeTime("2026-04-29T11:55:00Z")).toBe("5분 전");
     expect(relativeTime("2026-04-29T11:01:00Z")).toBe("59분 전");
+    expect(relativeTime("2026-04-29T11:59:00Z")).toBe("1분 전");
   });
 
   it("1-23시간 전은 'N시간 전'", () => {
@@ -36,5 +37,10 @@ describe("relativeTime", () => {
 
   it("미래 시각은 '방금 전' 으로 안전하게 처리", () => {
     expect(relativeTime("2026-04-29T12:00:30Z")).toBe("방금 전");
+  });
+
+  it("유효하지 않은 입력은 빈 문자열 반환", () => {
+    expect(relativeTime("")).toBe("");
+    expect(relativeTime("not-a-date")).toBe("");
   });
 });

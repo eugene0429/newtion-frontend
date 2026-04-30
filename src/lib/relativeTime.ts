@@ -9,6 +9,7 @@ function pad(n: number): string {
 
 export function relativeTime(iso: string, now: Date = new Date()): string {
   const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
   const diff = Math.max(0, Math.floor((now.getTime() - then) / 1000));
   if (diff < MIN) return "방금 전";
   if (diff < HOUR) return `${Math.floor(diff / MIN)}분 전`;
